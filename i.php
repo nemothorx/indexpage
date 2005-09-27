@@ -26,9 +26,12 @@ $dir = dirname($_SERVER['SCRIPT_FILENAME']);
 # requestbase is the directory path from the web view
 // $requestbase = dirname($_SERVER["PHP_SELF"]);
 
-# We should only do a dirname on this if the last element is the .php file
-# otherwise, leave it. 
-$requestbase = dirname($_SERVER['REQUEST_URI']);
+# note that we don't do a dirname on this... so we get the full path thing,
+# with an erroneous trailing slash, it should be noted.  this is basically
+# correct (except for the trailing), if it's called as a .php but if the URI is
+# automatic, then it's already a directory, and we do NOT need to dirname it...
+# which is what we're aiming for... :)
+$requestbase = $_SERVER['REQUEST_URI'];
 
 # now, $dir should be the filesystem POV version of $requestbase
 
