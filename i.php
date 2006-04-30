@@ -399,7 +399,12 @@ if (($dir !== false) && !strstr ($dir, "..") && ($d = opendir (realpath ($dir)))
 		# now we drop anything that is a dotfile
 		if (!ereg("(^\\.|~$)", $f)) {
 			$y = stat ("$dir/$f");
-			$z = shell_exec("file -N '$dir/$f'");
+			if( ini_get('safe_mode') ){
+				// Do it the safe mode way
+			   }else{
+				// Do it the regular way
+				$z = shell_exec("file -N '$dir/$f'");
+			}
 			list($filename, $filetype) = split(':', $z);
 			$y[99] = $filetype;
 			# force directory sizes to be zero
