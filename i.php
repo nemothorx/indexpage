@@ -9,6 +9,18 @@
 
 # version map of the star log thingy
 
+# for 1.5: 2010 sept 28
+#	- added count-of-items inside directory
+
+# for 1.4: 2010 sept 26
+#	- fixed column headers links. php was leaking, due to stale server-side sorting code. Since all sorting is javascript client side, it's removed
+
+# for 1.3: (2010 sept 16) major reworking of bits to bring it up to 2010
+#	- fixed file handling, and can be called with path=foo/bar/ param
+#	    - modrewrite means this can be used as proper index now
+#	- better inc file handling. 
+#	- bug in escapeshellarg - strips non-ascii
+
 # for 1.2: fix bug so filesystem path to request URI is discoverable,
 # thus allowing script to be called as a dirindex
 
@@ -18,32 +30,44 @@
 # 1.0 (after many months of ignoring the thing, mid septemberish 2005
 #	- Basically, it works
 
-# dir is the directory on the filesystem...
+
+# dir is the directory on the filesystem that we want to inspect!
+# NEEDED so we know where to inspect files with `find`
+
 # BUG: this breaks when this script is called as a Dirindex from another
 # location
-$dir = dirname($_SERVER['SCRIPT_FILENAME']);
+$scriptdir = dirname($_SERVER['SCRIPT_FILENAME'])."/";
+$reqdir = $_GET['path'];
+$dir = $scriptdir.$reqdir;
+#echo "dir: $dir<br>";
 
-# requestbase is the directory path from the web view
-// $requestbase = dirname($_SERVER["PHP_SELF"]);
+#name(script_filename)),realpath($_REQUEST['path']))!==0) {
+#                      die ("FUCK YOU! KEEP OUTTA MY FILEZ!"); }
 
-# note that we don't do a dirname on this... so we get the full path thing,
-# with an erroneous trailing slash, it should be noted.  this is basically
-# correct (except for the trailing), if it's called as a .php but if the URI is
-# automatic, then it's already a directory, and we do NOT need to dirname it...
-# which is what we're aiming for... :)
-$requestbase = $_SERVER['REQUEST_URI'];
+$requesturi = $_SERVER['REQUEST_URI'];
+#echo "requesturi: $requesturi<br>";
 
-# now, $dir should be the filesystem POV version of $requestbase
+# TODO
+# make `dir` be calculatable from requesturi, NOT from SCRIPT_FILENAME
 
-///////// FOR DEBUG /////
+//$requestparts = pathinfo($_SERVER['REQUEST_URI']);
+//$requestdir = $requestparts['dirname'];
+// echo "pathinfo dirname: $requestdir<br>";
+
 
 # echo $_SERVER['PATH_TRANSLATED'];
 # $foo = $_SERVER['DOCUMENT_ROOT'];
 # echo "docroot: $foo<br>";
-$foo = $_SERVER['REQUEST_URI'];
-//echo "request_uri: $foo<br>";
+//$foo = $_SERVER['REQUEST_URI'];
+// echo "request_uri: $foo<br>";
 //echo "dirname of script_filename: $dir<br>";
-//$dir = '/home/nemo/public_html/mediajunkie/';
+
+//$infstuff = apache_lookup_uri($_SERVER['REQUEST_URI']);
+//print_r($infstuff);
+//echo "<br>";
+//$infname= $infstuff->filename;
+//echo "infstuff: $infname<br>";
+//echo getcwd() . "\n";
 
 /////////
 
@@ -106,35 +130,61 @@ function array_reverse_ref($a) {
 
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:s="http://www.house.cx/~nemo/sortablelists">
     <head>
-	<title>Index of <? echo $requestbase; ?></title>
+	<title>Index of <? echo $requesturi; ?></title>
         <meta http-equiv="Content-Type" content="application/xhtml+xml;charset=utf-8" />
+
         <style type="text/css">
             /* <![CDATA[ */
+<? 
+
+$Window = "#000";
+$WindowText = "#999";
+$InfoBackground = "#333";
+$CaptionText = "#aaa";
+$ButtonFace = "#222";
+$ButtonHighlight = "#333";
+$ButtonShadow = "#111";
+
+print "
             body {
                 margin: 0;
                 padding: 0;
                 
-                background: Window;
-                color: WindowText;
-                font: message-box;
+                background: $Window;
+                color: $WindowText;
+                font: sans-serif;
             }
+
+	a:link {
+	  color: #3a3;
+	  font-weight: bold;
+	}
+	a:visited {
+	  color: #797;
+	}
+	a:hover {
+	  color: #f93;
+    	background: $ButtonShadow;
+	}
+
             
             h1 {
                 font: caption;
 		font-size: large;
-		background: InfoBackground;
-                color: CaptionText;
+		background: $InfoBackground;
+                color: $CaptionText;
                 margin: 0;
-		padding: 0.3em 0 0.3em 0.5em;
-		border-bottom: 1px solid black;
+		padding: 0.5em 0 0.5em 2em;
+		border-bottom: 1px solid $ButtonShadow;
             }
 	    
             div.include {
-                background: ButtonFace;
-                float: left;
-                width: 100%;
-		border-top: 1px solid ButtonHighlight;
-		border-bottom: 1px solid ButtonShadow;
+                background: $Window;
+		padding-left: 1em;
+		padding-top: 0.5em;
+		padding-bottom: 0.5em;
+		border-top: 1px solid $ButtonShadow;
+		border-bottom: 1px solid $ButtonHighlight;
             }
 	    
             table {
@@ -150,43 +200,47 @@ function array_reverse_ref($a) {
             }
             
             th {
-                background: ButtonFace;
-                color: ButtonText;
+                background: $ButtonFace;
+                color: $ButtonText;
                 padding: 0;
             }
 
             th a, td {
                 padding: 0.3em 0.5em 0.3em 0.5em;              
-                border-top: 1px solid ButtonHighlight;
-                border-bottom: 1px solid ButtonShadow;
+                border-top: 1px solid $ButtonHighlight;
+                border-bottom: 1px solid $ButtonShadow;
             }
 
 	    tbody {
-	        background: ButtonFace;
+	        background: $ButtonFace;
 	    }
 
             th a {
                 text-align: left;
 
                 display: block;
-                border-left: 1px solid ButtonHighlight;
-                border-right: 1px solid ButtonShadow;
+                border-left: 1px solid $ButtonHighlight;
+                border-right: 1px solid $ButtonShadow;
             }
             th a:hover {
-		background: ButtonHighlight;
+		background: $ButtonHighlight;
             }
 
 	    th.filetype {
 		width: 67%;
 	    }
-            
+
             td {
-                background: ButtonFace;
 		/*
+                background: $ButtonFace;
+                border-top: 1px solid $ButtonShadow;
+                border-bottom: 1px solid $ButtonHighlight;
 		*/
-                border-top: 1px solid ButtonShadow;
-                border-bottom: 1px solid ButtonHighlight;
+		border: 0px;
 	    }
+            tr.data:hover {
+		background-color: $ButtonShadow;
+            }
 	    
             td.filetype {
 	    	font-size: x-small;
@@ -195,6 +249,11 @@ function array_reverse_ref($a) {
 	    pre {
 		padding: 0.3em 0 0.3em 0.5em;
 	    }
+	    ul {
+		margin: 2em;
+		text-align: right;
+	    }
+" ?>
 
             /* ]]> */
         </style>
@@ -341,8 +400,8 @@ function array_reverse_ref($a) {
 
                 g_tables = toArray(document.getElementsByTagName('table'));
 
-                if(!g_tables.length)
-                    alert("This page doesn't contain any tables.");
+//                if(!g_tables.length)
+//                    alert("This page doesn't contain any tables.");
                 
                 for (j=0; j < g_tables.length; ++j) {
                     thead = g_tables[j].tHead.rows[0];
@@ -364,115 +423,103 @@ function array_reverse_ref($a) {
         </script>
     </head>
     <body>
-	<h1>
-	<?
+<?
+		if(file_exists(".header")) {
+			echo "<div class='include'>";
+			include ".header";
+			echo "</div>\n";
+		}
+echo "	<h1>\n";
 		// link to top level server
-		echo "http://<a href='http://", $_SERVER['SERVER_NAME'], "/'>", $_SERVER['SERVER_NAME'], "</a>";
-		echo "/";
-		// loop through the $requestbase to get links to each directory
+		echo "http://<a href='http://", $_SERVER['HTTP_HOST'], "/'>", $_SERVER['HTTP_HOST'], "</a>";
+		//echo "/";
+		// loop through the $requesturi to get links to each directory
 		// in turn...
-		$elements = preg_split('/\//', $requestbase, -1, PREG_SPLIT_NO_EMPTY);
-		//echo $requestbase; 
+		$elements = preg_split('/\//', $requesturi, -1, PREG_SPLIT_NO_EMPTY);
 		$url="/";
 		$cnt=0;
 		for ($piece=0; $piece < count($elements); $piece++ ) {
+			echo "/";
 			$url=$url.$elements[$piece]."/";
 			echo "<a href='$url'>$elements[$piece]</a>";
-			echo "/";
 		}
-	?>
-	</h1>
+		// fudge to find out if we're looking at a directory and append final slash
+		$reverse=strrev($requesturi);
+		if ($reverse{0} == "/") { echo "/\n";}
+echo "	</h1>\n";
 
-<?
-		if(file_exists(".HEADER")) {
+		if(file_exists("$reqdir/.header")) {
 			echo "<div class='include'>";
-			echo "<pre>";
-			include ".HEADER";
-			echo "</pre>\n";
+			include "$reqdir/.header";
 			echo "</div>\n";
 		}
+
+if(file_exists("$dir/.index")) {
+	echo "<div class='include'>";
+	include "$dir/.index";
+	echo "</div>\n";
+} else {
         
-if (($dir !== false) && !strstr ($dir, "..") && ($d = opendir (realpath ($dir)))) {
-	$x = array();
+    if (($dir !== false) && !strstr ($dir, "..") && ($d = opendir (realpath ($dir)))) {
+	    $x = array();
 
-	while (false !== ($f = readdir ($d))) {
-		# now we drop anything that is a dotfile
-		if (!ereg("(^\\.|~$)", $f)) {
-			$y = stat ("$dir/$f");
-			if( ini_get('safe_mode') ){
-				// Do it the safe mode way
-			   }else{
-				// Do it the regular way
-				$z = shell_exec("file -N '$dir/$f'");
-			}
-			list($filename, $filetype) = split(':', $z);
-			$y[99] = $filetype;
-			# force directory sizes to be zero
-			if (is_dir("$dir/$f")) {
+	    while (false !== ($f = readdir ($d))) {
+		    # now we drop anything that is a dotfile
+		    if (!ereg("(^\\.|~$)", $f)) {
+			    $y = stat ("$dir/$f");
+			    $filetype = shell_exec("file -b -z ".escapeshellarg($dir."/".$f));
+			    $y[99] = $filetype;
+			    # special extra magic for directories:
+			    if (is_dir("$dir/$f")) {
+				# force directory sizes to be zero
 				$y[7]=0;
-			}
-			array_push ($x, array ($f, $y));
-		}
-	}
-
-	# we need to put in sorting stuff here
-	# TODO
-	# work out the proper server-side sorting stuff. The sorting functions
-	# exist above, we just don't reference them yet
-	# refer to $sort and $order	
-	if ($sort == 'M') {
-        	usort ($x, "cmp_mtime");
-	} else if ($sort == 'C') {
-        	usort ($x, "cmp_ctime");
-	} else if ($sort == 'S') {
-        	usort ($x, "cmp_size");
-	} else if ($sort == 'F') {
-        	usort ($x, "cmp_filetype");
-	} else {
-        	usort ($x, "cmp_name");
-	}
+				# count internal objects
+#    http://www.php.net/manual/en/function.scandir.php#95913  <-- to get extra info into directory lists?
+				# BUG: also counts dotfiles, including . and ..
+				# TODO: make sorting by type sort directories by their count? 
+				$dirscanresult = scandir("$dir/$f");
+				$filecnt = count($dirscanresult);
+				$y[99] = $filetype ." [" .$filecnt ." items]"; 
+			    }
+			    array_push ($x, array ($f, $y));
+		    }
+	    }
 
 
-	if ($order == 'D') {
-		$tmp=array_reverse_ref($x);
-		$x=$tmp;
-		$neworder='A';
-	}
-# BUG ALERT
-# the 'neworder' changes for all sorting types, so there is no consistency
-# on what the default order will be when you click a new column. 
+    echo "
+	    <table>
+		<thead>
+		    <tr>
+			<th s:type='number'>
+			    <a href='#'>Size</a>
+			</th>
+			<th>
+			    <a href='#'>Timestamp</a>
+			</th>
+			<th class=name>
+			    <a href='#'>Name</a>
+			</th>
+			<th class=filetype>
+			    <a href='#'>Type</a>
+			</th>
+		    </tr>
+		</thead>
+		<tbody>
+    ";
 
-?>
-        <table>
-            <thead>
-                <tr>
-                    <th s:type="number">
-                        <a href='?C=S&amp;O=<? echo $neworder; ?>'>Size</a>
-                    </th>
-                    <th>
-                        <a href='?C=M&amp;O=<? echo $neworder; ?>'>Timestamp</a>
-                    </th>
-                    <th class=name>
-                        <a href='?C=N&amp;O=<? echo $neworder; ?>'>Name</a>
-                    </th>
-                    <th class=filetype>
-                        <a href='?C=F&amp;O=<? echo $neworder; ?>'>Type</a>
-                    </th>
-                </tr>
-            </thead>
-            <tbody>
-<?
+	    foreach ($x as $cons) {
+		    $f = $cons[0];
+		    $rowcount++;
+		    echo "<tr class=data>\n",
+			    "  <td align=right s:sortvalue='", $cons[1][7], "' nowrap>", is_file ("$dir/$f") ? bytes_pp ($cons[1][7]) : "", "</td>",
+			    "  <td nowrap>", strftime ("%Y-%m-%d  %H:%M", $cons[1][9]), "</td>\n",
+			    "  <td nowrap><a href='", rawurlencode($f), is_dir ("$dir/$f") ? "/" : "", "'>",
+			    $f, is_dir ("$dir/$f") ? "/" : "", "</a></td>\n",
+			    "  <td class='filetype'>", $cons[1][99], "</td>\n",
+			    "</tr>\n";
+	    }
+    }
 
-	foreach ($x as $cons) {
-		$f = $cons[0];
-		echo "<tr>\n",
-			"  <td align=right s:sortvalue='", $cons[1][7], "' nowrap>", is_file ("$dir/$f") ? bytes_pp ($cons[1][7]) : "", "</td>",
-			"  <td nowrap>", strftime ("%Y-%m-%d  %H:%M", $cons[1][9]), "</td>\n",
-			"  <td nowrap><a href='", rawurlencode($f), is_dir ("$dir/$f") ? "/" : "", "'>",
-			$f, is_dir ("$dir/$f") ? "/" : "", "</a></td>\n",
-			"  <td class='filetype'>", $cons[1][99], "</td>\n",
-			"</tr>\n";
-	}
 }
 ?>
 	    
@@ -481,18 +528,15 @@ if (($dir !== false) && !strstr ($dir, "..") && ($d = opendir (realpath ($dir)))
 	<? // echo $_SERVER["SERVER_SIGNATURE"]; ?>
 
 <?
-		if(file_exists(".README")) {
+		if(file_exists(".readme")) {
 			echo "<div class='include'>";
-			echo "<pre>";
-			include ".README";
-			echo "</pre>";
-			echo "</div>";
+			include ".readme";
+			echo "</div>\n";
 		}
 
 # this is good debug
 # phpinfo();
 ?>
-
     </body>
 </html>
 
