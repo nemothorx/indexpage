@@ -9,6 +9,10 @@
 
 # version map of the star log thingy
 
+# in 1.6: 2012 Apr 24
+#       - horrible time hack to subtract 3600 from a files time_t offset when php thinks it originated in a DST enabled time. Makes output consistent with `ls`
+
+
 # for 1.5: 2010 sept 28
 #	- added count-of-items inside directory
 
@@ -510,6 +514,11 @@ if(file_exists("$dir/.index")) {
 	    foreach ($x as $cons) {
 		    $f = $cons[0];
 		    $rowcount++;
+		    # ick ick ick. This hack works around the "bug" where file dates are shown with the offset from when they were made. This is diferent to 'ls'.
+		    # this hack makes the times appear self-consistent in the output, but only if
+		    # no timezone information is revealed out
+	            if (date('I', $cons[1][9]) == 1) { $cons[1][9] -= 3600; }
+
 		    echo "<tr class=data>\n",
 			    "  <td align=right s:sortvalue='", $cons[1][7], "' nowrap>", is_file ("$dir/$f") ? bytes_pp ($cons[1][7]) : "", "</td>",
 			    "  <td nowrap>", strftime ("%Y-%m-%d  %H:%M", $cons[1][9]), "</td>\n",
