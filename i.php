@@ -7,7 +7,16 @@
 # Pretty javascript from
 # http://www.squarefree.com/bookmarklets/pagedata.html#sort_table
 
+
+# 1.7 proposal:
+# for directories, I currently count items. I should also check for a .header file and if it exists, then grab the first line of it and insert into listing? :)  --Nemo, 2012apr24
+
+
 # version map of the star log thingy
+
+
+# at 1.6.1: 2012 Sep 27
+#	- CSS tuning. (li no longer right)
 
 # in 1.6: 2012 Apr 24
 #       - horrible time hack to subtract 3600 from a files time_t offset when php thinks it originated in a DST enabled time. Makes output consistent with `ls`
@@ -255,7 +264,7 @@ print "
 	    }
 	    ul {
 		margin: 2em;
-		text-align: right;
+		text-align: left;
 	    }
 " ?>
 
