@@ -15,6 +15,9 @@
 # version map of the star log thingy
 
 
+# so 1.6.2: 2013 Sep 16
+#	- cleaned up variables (removing unused ones, ensuring all used are defined)
+
 # at 1.6.1: 2012 Sep 27
 #	- CSS tuning. (li no longer right)
 
@@ -84,10 +87,6 @@ $requesturi = $_SERVER['REQUEST_URI'];
 
 /////////
 
-$sort=$_GET['C'];
-$order=$_GET['O'];
-$neworder='D';	// default
-
 function bytes_pp ($n) {
 	if ($n < 1024)
 		return sprintf ("% 6dB", $n);
@@ -154,6 +153,7 @@ $Window = "#000";
 $WindowText = "#999";
 $InfoBackground = "#333";
 $CaptionText = "#aaa";
+$ButtonText = "#F00";
 $ButtonFace = "#222";
 $ButtonHighlight = "#333";
 $ButtonShadow = "#111";
@@ -522,7 +522,7 @@ if(file_exists("$dir/.index")) {
 
 	    foreach ($x as $cons) {
 		    $f = $cons[0];
-		    $rowcount++;
+//		    $rowcount++;
 		    # ick ick ick. This hack works around the "bug" where file dates are shown with the offset from when they were made. This is diferent to 'ls'.
 		    # this hack makes the times appear self-consistent in the output, but only if
 		    # no timezone information is revealed out
