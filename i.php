@@ -7,13 +7,20 @@
 # Pretty javascript from
 # http://www.squarefree.com/bookmarklets/pagedata.html#sort_table
 
-
-# 1.7 proposal:
-# for directories, I currently count items. I should also check for a .header file and if it exists, then grab the first line of it and insert into listing? :)  --Nemo, 2012apr24
-
-
 # version map of the star log thingy
 
+# FEATURE THOUGHTS
+# * reimplementing serverside sorting? (see 1.1)
+# * implement file(1) with caching? (or at least make file checks an easy option at top of script, and/or secret URL hack option)
+
+
+# very 1.7: 2014 Aug 14
+#	- file(1) check no longer default
+#	- directory item count fixed. Counts files and dirs seperate too.
+#	- directory type includes first line of that directories .header file
+#	- removed unused serverside sorting functions (but kept cmp_name)
+#	- fixed default sort order (from cmp_name :)
+#	- renamed 'type' column to 'info'
 
 # so 1.6.2: 2013 Sep 16
 #	- cleaned up variables (removing unused ones, ensuring all used are defined)
@@ -98,42 +105,8 @@ function bytes_pp ($n) {
 }
 
 function cmp_name ($a, $b) {
-	# sorts alphabetical, a->z
-	return strcasecmp ($a[0], $b[0]);
-}
-
-function cmp_size ($a, $b) {
-	# sorts numerically, small to large
-	if ($a[1][7] == $b[1][7]) return strcasecmp ($a[0], $b[0]);
-	return ($a[1][7] > $b[1][7]) ? -1 : 1;
-}
-
-function cmp_filetype ($a, $b) {
-	if ($a[1][99] == $b[1][99]) return strcasecmp ($a[0], $b[0]);
-	return ($a[1][99] > $b[1][99]) ? -1 : 1;
-}
-
-function cmp_mtime ($a, $b) {
-	if ($a[1][9] == $b[1][9]) return strcasecmp ($a[0], $b[0]);
-	return ($a[1][9] > $b[1][9]) ? -1 : 1;
-}
-
-function cmp_ctime ($a, $b) {
-	if ($a[1][10] == $b[1][10]) return strcasecmp ($a[0], $b[0]);
-	return ($a[1][10] > $b[1][10]) ? -1 : 1;
-}
-
-function cmp_dir ($a, $b) {
-# 	if (is_dir($a[0]) == is_dir($b[0])) return strcasecmp ($a[0], $b[0]);
-	return is_dir($a[0]) > is_dir($b[0]) ? -1 : 1;
-}
-
-function array_reverse_ref($a) {
-   $r = array();
-   for($i=0, $j=count($a); $i<count($a); $i++, $j--) {
-       $r[$i] =& $a[$j-1];
-   }
-   return $r;
+            # sorts alphabetical, a->z
+            return strcasecmp ($a[0], $b[0]);
 }
 
 
@@ -239,7 +212,7 @@ print "
 		background: $ButtonHighlight;
             }
 
-	    th.filetype {
+	    th.fileinfo {
 		width: 67%;
 	    }
 
@@ -255,8 +228,8 @@ print "
 		background-color: $ButtonShadow;
             }
 	    
-            td.filetype {
-	    	font-size: x-small;
+            td.fileinfo {
+	    	font-size: small;
             }
 	  
 	    pre {
@@ -480,24 +453,42 @@ if(file_exists("$dir/.index")) {
 		    # now we drop anything that is a dotfile
 		    if (!ereg("(^\\.|~$)", $f)) {
 			    $y = stat ("$dir/$f");
-			    $filetype = shell_exec("file -b -z ".escapeshellarg($dir."/".$f));
-			    $y[99] = $filetype;
+# file(1) check. This can hurt performance. Off by default now
+#			    $fileinfo = shell_exec("file -b -z ".escapeshellarg($dir."/".$f));
+			    $y[99] = $fileinfo;
 			    # special extra magic for directories:
 			    if (is_dir("$dir/$f")) {
 				# force directory sizes to be zero
 				$y[7]=0;
+				$dircnt=0;
+				$filecnt=0;
 				# count internal objects
 #    http://www.php.net/manual/en/function.scandir.php#95913  <-- to get extra info into directory lists?
-				# BUG: also counts dotfiles, including . and ..
 				# TODO: make sorting by type sort directories by their count? 
 				$dirscanresult = scandir("$dir/$f");
-				$filecnt = count($dirscanresult);
-				$y[99] = $filetype ." [" .$filecnt ." items]"; 
+				if (is_array($dirscanresult)) {
+				    foreach($dirscanresult as $entry) {
+					if (!preg_match("/^\..*/", "$entry")) {
+					    if (is_dir("$dir/$f/$entry")) {
+						$dircnt++;
+					    } else {
+						$filecnt++;
+					    }
+					}
+				    }
+				}
+#				$filecnt = count($dirscanresult)-2;
+				if(file_exists("$dir/$f/.header")) {
+					$y[99] .= " ".shell_exec("head -1 ".escapeshellarg($dir."/".$f."/.header"));
+				}
+				$y[99] .= $fileinfo ." [" .$dircnt ." dirs, " .$filecnt ." files] "; 
 			    }
 			    array_push ($x, array ($f, $y));
 		    }
 	    }
 
+    usort ($x, "cmp_name");
+    
 
     echo "
 	    <table>
@@ -512,8 +503,8 @@ if(file_exists("$dir/.index")) {
 			<th class=name>
 			    <a href='#'>Name</a>
 			</th>
-			<th class=filetype>
-			    <a href='#'>Type</a>
+			<th class=fileinfo>
+			    <a href='#'>Info</a>
 			</th>
 		    </tr>
 		</thead>
@@ -533,7 +524,7 @@ if(file_exists("$dir/.index")) {
 			    "  <td nowrap>", strftime ("%Y-%m-%d  %H:%M", $cons[1][9]), "</td>\n",
 			    "  <td nowrap><a href='", rawurlencode($f), is_dir ("$dir/$f") ? "/" : "", "'>",
 			    $f, is_dir ("$dir/$f") ? "/" : "", "</a></td>\n",
-			    "  <td class='filetype'>", $cons[1][99], "</td>\n",
+			    "  <td class='fileinfo'>", $cons[1][99], "</td>\n",
 			    "</tr>\n";
 	    }
     }
