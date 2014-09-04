@@ -13,6 +13,8 @@
 # * reimplementing serverside sorting? (see 1.1)
 # * implement file(1) with caching? (or at least make file checks an easy option at top of script, and/or secret URL hack option)
 
+# this 1.7.1: 2014 Sept 05
+#	- style enhancement for the info column for directories
 
 # very 1.7: 2014 Aug 14
 #	- file(1) check no longer default
@@ -478,10 +480,10 @@ if(file_exists("$dir/.index")) {
 				    }
 				}
 #				$filecnt = count($dirscanresult)-2;
+				$y[99] .= $fileinfo ." <tt>[" .$dircnt ." dirs, " .$filecnt ." files]</tt>"; 
 				if(file_exists("$dir/$f/.header")) {
 					$y[99] .= " ".shell_exec("head -1 ".escapeshellarg($dir."/".$f."/.header"));
 				}
-				$y[99] .= $fileinfo ." [" .$dircnt ." dirs, " .$filecnt ." files] "; 
 			    }
 			    array_push ($x, array ($f, $y));
 		    }
