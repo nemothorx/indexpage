@@ -13,6 +13,10 @@
 # * reimplementing serverside sorting? (see 1.1)
 # * implement file(1) with caching? (or at least make file checks an easy option at top of script, and/or secret URL hack option)
 
+# much 1.8: 2014 Dec 22
+#	- breadcrumb workaround to avoid '?path=' ugliness. Still in URL tho
+#	    (triggered when no trailing slash)
+
 # this 1.7.1: 2014 Sept 05
 #	- style enhancement for the info column for directories
 
@@ -428,8 +432,12 @@ echo "	<h1>\n";
 		$cnt=0;
 		for ($piece=0; $piece < count($elements); $piece++ ) {
 			echo "/";
-			$url=$url.$elements[$piece]."/";
-			echo "<a href='$url'>$elements[$piece]</a>";
+			# hack to not append ?path= param on breadcrumbs.
+			# BUG: still appears in URL
+			if (substr($elements[$piece], 0, 6) != '?path=' ) {
+			    $url=$url.$elements[$piece]."/";
+			    echo "<a href='$url'>$elements[$piece]</a>";
+			}
 		}
 		// fudge to find out if we're looking at a directory and append final slash
 		$reverse=strrev($requesturi);
