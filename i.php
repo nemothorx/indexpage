@@ -7,61 +7,6 @@
 # Pretty javascript from
 # http://www.squarefree.com/bookmarklets/pagedata.html#sort_table
 
-# version map of the star log thingy
-
-# FEATURE THOUGHTS
-# * reimplementing serverside sorting? (see 1.1)
-# * implement file(1) with caching? (or at least make file checks an easy option at top of script, and/or secret URL hack option)
-
-# TODO intention for 1.9: 2020 Feb
-#   - grab the test from {}.description files and include
-
-# much 1.8: 2014 Dec 22
-#	- breadcrumb workaround to avoid '?path=' ugliness. Still in URL tho
-#	    (triggered when no trailing slash)
-
-# this 1.7.1: 2014 Sept 05
-#	- style enhancement for the info column for directories
-
-# very 1.7: 2014 Aug 14
-#	- file(1) check no longer default
-#	- directory item count fixed. Counts files and dirs seperate too.
-#	- directory type includes first line of that directories .header file
-#	- removed unused serverside sorting functions (but kept cmp_name)
-#	- fixed default sort order (from cmp_name :)
-#	- renamed 'type' column to 'info'
-
-# so 1.6.2: 2013 Sep 16
-#	- cleaned up variables (removing unused ones, ensuring all used are defined)
-
-# at 1.6.1: 2012 Sep 27
-#	- CSS tuning. (li no longer right)
-
-# in 1.6: 2012 Apr 24
-#       - horrible time hack to subtract 3600 from a files time_t offset when php thinks it originated in a DST enabled time. Makes output consistent with `ls`
-
-
-# for 1.5: 2010 sept 28
-#	- added count-of-items inside directory
-
-# for 1.4: 2010 sept 26
-#	- fixed column headers links. php was leaking, due to stale server-side sorting code. Since all sorting is javascript client side, it's removed
-
-# for 1.3: (2010 sept 16) major reworking of bits to bring it up to 2010
-#	- fixed file handling, and can be called with path=foo/bar/ param
-#	    - modrewrite means this can be used as proper index now
-#	- better inc file handling. 
-#	- bug in escapeshellarg - strips non-ascii
-
-# for 1.2: fix bug so filesystem path to request URI is discoverable,
-# thus allowing script to be called as a dirindex
-
-# 1.1 (2005.september.26)
-#	- Added filetype column and css lines to show the rows
-
-# 1.0 (after many months of ignoring the thing, mid septemberish 2005
-#	- Basically, it works
-
 
 # dir is the directory on the filesystem that we want to inspect!
 # NEEDED so we know where to inspect files with `find`
