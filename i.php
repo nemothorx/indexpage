@@ -411,10 +411,10 @@ if(file_exists("$dir/.index")) {
 		    # now we drop anything that is a dotfile
 		    if (!preg_match("(^\\.|~$)", $f)) {
 			    $y = stat ("$dir/$f");
-# file(1) check. This can hurt performance. Off by default now
+# file(1) check. This can hurt performance. Off by default now (and $fileinfo lines below commented)
 #			    $fileinfo = shell_exec("file -b -z ".escapeshellarg($dir."/".$f));
                             # TODO for 1.9: if there is a youtube-dl .description version of a file, get it's first line for fileinfo 
-			    $y[99] = $fileinfo;
+#			    $y[99] = $fileinfo;
 			    # special extra magic for directories:
 			    if (is_dir("$dir/$f")) {
 				# force directory sizes to be zero
@@ -437,7 +437,7 @@ if(file_exists("$dir/.index")) {
 				    }
 				}
 #				$filecnt = count($dirscanresult)-2;
-				$y[99] .= $fileinfo ." <tt>[" .$dircnt ." dirs, " .$filecnt ." files]</tt>"; 
+#				$y[99] .= $fileinfo ." <tt>[" .$dircnt ." dirs, " .$filecnt ." files]</tt>"; 
 				if(file_exists("$dir/$f/.header")) {
 					$y[99] .= " ".shell_exec("head -1 ".escapeshellarg($dir."/".$f."/.header"));
 				}
@@ -503,7 +503,7 @@ if(file_exists("$dir/.index")) {
 		}
 
 # this is good debug
-# phpinfo();
+phpinfo();
 ?>
     </body>
 </html>
