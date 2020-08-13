@@ -14,7 +14,7 @@
 # BUG: this breaks when this script is called as a Dirindex from another
 # location
 $scriptdir = dirname($_SERVER['SCRIPT_FILENAME'])."/";
-$reqdir = $_GET['path'];
+if (isset($_GET['path']) ) { $reqdir = $_GET['path']; }
 $dir = $scriptdir.$reqdir;
 #echo "dir: $dir<br>";
 
