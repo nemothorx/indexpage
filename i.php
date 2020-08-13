@@ -1,4 +1,4 @@
-<?
+<?php
 # A better directory indexer, in php
 
 # Original code from Sneakums
@@ -69,12 +69,12 @@ function cmp_name ($a, $b) {
 
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:s="http://www.house.cx/~nemo/sortablelists">
     <head>
-	<title>Index of <? echo $requesturi; ?></title>
+	<title>Index of <?php echo $requesturi; ?></title>
         <meta http-equiv="Content-Type" content="application/xhtml+xml;charset=utf-8" />
 
         <style type="text/css">
             /* <![CDATA[ */
-<? 
+<?php 
 
 $Window = "#000";
 $WindowText = "#999";
@@ -363,7 +363,7 @@ print "
         </script>
     </head>
     <body>
-<?
+<?php
 		if(file_exists(".header")) {
 			echo "<div class='include'>";
 			include ".header";
@@ -493,9 +493,9 @@ if(file_exists("$dir/.index")) {
 	    
             </tbody>
         </table>
-	<? // echo $_SERVER["SERVER_SIGNATURE"]; ?>
+	<?php // echo $_SERVER["SERVER_SIGNATURE"]; ?>
 
-<?
+<?php
 		if(file_exists(".readme")) {
 			echo "<div class='include'>";
 			include ".readme";
