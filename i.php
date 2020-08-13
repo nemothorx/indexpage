@@ -409,7 +409,7 @@ if(file_exists("$dir/.index")) {
 
 	    while (false !== ($f = readdir ($d))) {
 		    # now we drop anything that is a dotfile
-		    if (!ereg("(^\\.|~$)", $f)) {
+		    if (!preg_match("(^\\.|~$)", $f)) {
 			    $y = stat ("$dir/$f");
 # file(1) check. This can hurt performance. Off by default now
 #			    $fileinfo = shell_exec("file -b -z ".escapeshellarg($dir."/".$f));
