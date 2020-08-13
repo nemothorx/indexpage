@@ -13,11 +13,13 @@ Can nearly transparently replace the default indexer
 
 * reimplementing serverside sorting? (see 1.1)
 * implement file(1) with caching? (or at least make file checks an easy option at top of script, and/or secret URL hack option)
+* Works on php7
+
 
 ## Bugs
 
 * If the URL lacks a trailing slash, the URL gets messy
-* Last tested and working on php5. Not working on php7
+
 
 ## Other helper files you may want to have:
 
