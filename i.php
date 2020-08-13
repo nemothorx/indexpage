@@ -414,7 +414,7 @@ if(file_exists("$dir/.index")) {
 # file(1) check. This can hurt performance. Off by default now 
                             $fileinfo = "";
 #			    $fileinfo = shell_exec("file -b -z ".escapeshellarg($dir."/".$f));
-                            # TODO for 1.9: if there is a youtube-dl .description version of a file, get it's first line for fileinfo 
+                            # TODO post 1.9: if there is a youtube-dl .description version of a file, get it's first line for fileinfo 
 			    $y[99] = $fileinfo;
 			    # special extra magic for directories:
 			    if (is_dir("$dir/$f")) {
