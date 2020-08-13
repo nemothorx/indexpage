@@ -503,7 +503,7 @@ if(file_exists("$dir/.index")) {
 		}
 
 # this is good debug
-phpinfo();
+# phpinfo();
 ?>
     </body>
 </html>
