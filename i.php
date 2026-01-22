@@ -13,13 +13,14 @@
 #           - the local one (if different) is below the breadcrumbs
 # * .index - replaces the automatic listing
 #          - auto listing counts files/dirs  for "info" within each subdir
-#               # AND includes the .header from EACH subdir
+#               # AND includes the first line of the .header from EACH subdir
 # * .readme - only the one local is checked, added below index listing
 # * .footer - only the one in the root is checked, added last
 
 # all these are included without further processing (yikes!)
 # Assumed to be written in html
-    # header and footer intended to be one-liners
+    # global header and footer intended to be one-liners
+    # local header could go either way, but first line expected useful alone
     # index and readme intended to be multiline content
 
 
@@ -146,6 +147,7 @@ print "
                 color: #3c3;
                 border-radius: 0.3em;
                 border: 1px solid #999c;
+                white-space: nowrap;
                 &:hover {
                     border: 1px solid #FC09;
                     }
