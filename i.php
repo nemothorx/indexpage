@@ -8,14 +8,31 @@
 # http://www.squarefree.com/bookmarklets/pagedata.html#sort_table
 
 
+# multiple files checked and included
+# * .header - the one in the root is always added above breadcrumbs
+#           - the local one (if different) is below the breadcrumbs
+# * .index - replaces the automatic listing
+#          - auto listing counts files/dirs  for "info" within each subdir
+#               # AND includes the .header from EACH subdir
+# * .readme - only the one local is checked, added below index listing
+# * .footer - only the one in the root is checked, added last
+
+# all these are included without further processing (yikes!)
+# Assumed to be written in html
+    # header and footer intended to be one-liners
+    # index and readme intended to be multiline content
+
+
 # dir is the directory on the filesystem that we want to inspect!
 # NEEDED so we know where to inspect files with `find`
 
-# BUG: this breaks when this script is called as a Dirindex from another
+# BUG: when dir is based off scriptdir, this breaks when this script is called as a Dirindex from another. untested with using docroot
 # location
 $scriptdir = dirname($_SERVER['SCRIPT_FILENAME'])."/";
+$docroot = $_SERVER['DOCUMENT_ROOT'];
 if (isset($_GET['path']) ) { $reqdir = $_GET['path']; }
-$dir = $scriptdir.$reqdir;
+# $dir = $scriptdir.$reqdir;
+$dir = $docroot.$reqdir;
 #echo "dir: $dir<br>";
 
 #name(script_filename)),realpath($_REQUEST['path']))!==0) {
@@ -69,7 +86,7 @@ function cmp_name ($a, $b) {
 
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:s="http://www.house.cx/~nemo/sortablelists">
     <head>
-	<title>Index of <?php echo $requesturi; ?></title>
+	<title>Index of <?php echo urldecode($requesturi); ?></title>
         <meta http-equiv="Content-Type" content="application/xhtml+xml;charset=utf-8" />
 
         <style type="text/css">
@@ -93,6 +110,7 @@ print "
                 background: $Window;
                 color: $WindowText;
                 font: sans-serif;
+                font-size: 1.1em;
             }
 
 	a:link {
@@ -107,15 +125,41 @@ print "
     	background: $ButtonShadow;
 	}
 
-            
             h1 {
                 font: caption;
-		font-size: large;
+		font-size: 1.2em;
 		background: $InfoBackground;
                 color: $CaptionText;
                 margin: 0;
-		padding: 0.5em 0 0.5em 2em;
+		padding: 0.5em 0 0.5em 4em;
 		border-bottom: 1px solid $ButtonShadow;
+                line-height: 1.6em;
+                text-indent: -3em;
+            }
+
+            h1 a {
+                text-decoration: none;
+                text-decoration-color: #99fc;
+                padding: 0.2em;
+                margin: 0.3em;
+                background: #0006;
+                color: #3c3;
+                border-radius: 0.3em;
+                border: 1px solid #999c;
+                &:hover {
+                    border: 1px solid #FC09;
+                    }
+            }
+            h1 .sep {
+                font-size: 0px;
+                vertical-align:middle;
+                color: #0000;
+                padding: 0em;
+                width: 0em;
+                height: 0em;
+                border-top: 10px solid transparent;
+                border-left: 12px solid #6966;
+                border-bottom: 10px solid transparent;
             }
 	    
             div.include {
@@ -143,6 +187,8 @@ print "
                 background: $ButtonFace;
                 color: $ButtonText;
                 padding: 0;
+                width: 5%;
+                text-align: left;
             }
 
             th a, td {
@@ -156,8 +202,6 @@ print "
 	    }
 
             th a {
-                text-align: left;
-
                 display: block;
                 border-left: 1px solid $ButtonHighlight;
                 border-right: 1px solid $ButtonShadow;
@@ -166,9 +210,14 @@ print "
 		background: $ButtonHighlight;
             }
 
-	    th.fileinfo {
-		width: 67%;
-	    }
+            th {
+                &.filesize { width: 5%; }
+                &.filesize { text-align: right; }
+                &.filetime { width: 10%; }
+                &.filename { width: 20%; }
+	        &.fileinfo { width: 10%; }
+	        &.filedesc { width: 55%; }
+            }
 
             td {
 		/*
@@ -176,15 +225,39 @@ print "
                 border-top: 1px solid $ButtonShadow;
                 border-bottom: 1px solid $ButtonHighlight;
 		*/
+                font-size: 1.1em;
 		border: 0px;
 	    }
             tr.data:hover {
 		background-color: $ButtonShadow;
             }
 	    
+            td.filename a {
+                font-size: 1.1em;
+                text-decoration: none;
+                text-decoration-color: #99fc;
+                padding: 0.2em 0.6em 0.2em 0.6em;
+                margin: 0em;
+                background: #0003;
+                color: #3f9c;
+                border-radius: 0.3em;
+                border: 1px solid #9993;
+                &:visited {
+                    color: #696;
+                }
+                &:hover {
+                    border: 1px solid #FC09;
+                    color: #f93;                    
+                }
+            }
+
             td.fileinfo {
 	    	font-size: small;
+                white-space: nowrap;
             }
+
+
+
 	  
 	    pre {
 		padding: 0.3em 0 0.3em 0.5em;
@@ -370,31 +443,37 @@ print "
 			echo "</div>\n";
 		}
 echo "	<h1>\n";
+
+// BREADCRUMBS
 		// link to top level server
-		echo "http://<a href='http://", $_SERVER['HTTP_HOST'], "/'>", $_SERVER['HTTP_HOST'], "</a>";
-		//echo "/";
+		echo "🔗 <a href='https://", $_SERVER['HTTP_HOST'], "/'>https://", $_SERVER['HTTP_HOST'], "</a>";
+#		echo "/";
 		// loop through the $requesturi to get links to each directory
 		// in turn...
 		$elements = preg_split('/\//', $requesturi, -1, PREG_SPLIT_NO_EMPTY);
 		$url="/";
 		$cnt=0;
 		for ($piece=0; $piece < count($elements); $piece++ ) {
-			echo "/";
+			echo "<span class=sep>/</span>";
 			# hack to not append ?path= param on breadcrumbs.
 			# BUG: still appears in URL
+                            # bug doesn't appear in nginx?!
 			if (substr($elements[$piece], 0, 6) != '?path=' ) {
 			    $url=$url.$elements[$piece]."/";
-			    echo "<a href='$url'>$elements[$piece]</a>";
+			    echo "<a href='$url'>". urldecode($elements[$piece]) ."</a>";
 			}
 		}
 		// fudge to find out if we're looking at a directory and append final slash
-		$reverse=strrev($requesturi);
-		if ($reverse{0} == "/") { echo "/\n";}
+                // TODO: replace with substr(x ,-1), PHP_EOL; // to get last chatracter
+                // better todo: I dont think this whole method is sane/works anyway. maybe?
+#		$reverse=strrev($requesturi);
+#		if ($reverse{0} == "/") { echo "/\n";}
 echo "	</h1>\n";
 
-		if(file_exists("$reqdir/.header")) {
+                $cnt=strlen($reqdir);
+		if( ( strlen($reqdir) > 1 ) && ( file_exists("$dir/.header") ) ) {
 			echo "<div class='include'>";
-			include "$reqdir/.header";
+			include "$dir/.header";
 			echo "</div>\n";
 		}
 
@@ -440,7 +519,7 @@ if(file_exists("$dir/.index")) {
 #				$filecnt = count($dirscanresult)-2;
 				$y[99] .= $fileinfo ." <tt>[" .$dircnt ." dirs, " .$filecnt ." files]</tt>"; 
 				if(file_exists("$dir/$f/.header")) {
-					$y[99] .= " ".shell_exec("head -1 ".escapeshellarg($dir."/".$f."/.header"));
+					$y[98] .= " ".shell_exec("head -1 ".escapeshellarg($dir."/".$f."/.header"));
 				}
 			    }
 			    array_push ($x, array ($f, $y));
@@ -454,17 +533,20 @@ if(file_exists("$dir/.index")) {
 	    <table>
 		<thead>
 		    <tr>
-			<th s:type='number'>
+			<th class=filesize s:type='number'>
 			    <a href='#'>Size</a>
 			</th>
-			<th>
+			<th class=filetime>
 			    <a href='#'>Timestamp</a>
 			</th>
-			<th class=name>
+			<th class=filename>
 			    <a href='#'>Name</a>
 			</th>
 			<th class=fileinfo>
 			    <a href='#'>Info</a>
+			</th>
+			<th class=filedesc>
+			    <a href='#'>Description</a>
 			</th>
 		    </tr>
 		</thead>
@@ -482,9 +564,10 @@ if(file_exists("$dir/.index")) {
 		    echo "<tr class=data>\n",
 			    "  <td align=right s:sortvalue='", $cons[1][7], "' nowrap>", is_file ("$dir/$f") ? bytes_pp ($cons[1][7]) : "", "</td>",
 			    "  <td nowrap>", strftime ("%Y-%m-%d  %H:%M", $cons[1][9]), "</td>\n",
-			    "  <td nowrap><a href='", rawurlencode($f), is_dir ("$dir/$f") ? "/" : "", "'>",
+			    "  <td nowrap class='filename'><a href='", rawurlencode($f), is_dir ("$dir/$f") ? "/" : "", "'>",
 			    $f, is_dir ("$dir/$f") ? "/" : "", "</a></td>\n",
 			    "  <td class='fileinfo'>", $cons[1][99], "</td>\n",
+			    "  <td class='filedesc'>", $cons[1][98], "</td>\n",
 			    "</tr>\n";
 	    }
     }
@@ -497,13 +580,22 @@ if(file_exists("$dir/.index")) {
 	<?php // echo $_SERVER["SERVER_SIGNATURE"]; ?>
 
 <?php
-		if(file_exists(".readme")) {
-			echo "<div class='include'>";
-			include ".readme";
-			echo "</div>\n";
-		}
 
-# this is good debug
+# this include should mean it works on deep paths when used as a default indexer in nginx
+# echo "$dir";
+		if(file_exists("$dir/.readme")) {
+			echo "<div class='include'>";
+#                        echo "including: $dir/.readme";
+			include "$dir/.readme";
+			echo "</div>\n";
+                }
+		if(file_exists(".footer")) {
+			echo "<div class='include'> ";
+			include ".footer";
+			echo "</div>\n";
+                }
+
+# this is good debug (for variables), but note it screws up style
 # phpinfo();
 ?>
     </body>
