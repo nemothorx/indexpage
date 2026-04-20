@@ -23,13 +23,15 @@ Can nearly transparently replace the default indexer
 
 ## Other helper files you may want to have:
 
-* .header (info above the page)
-* .index (include this file INSTEAD of generating an index)
-* .readme (footer)
+* .header - the one in the root is always added above breadcrumbs
+          - the local one (if different) is below the breadcrumbs
+* .index - replaces the automatic listing
+         - auto listing counts files/dirs  for "info" within each subdir
+              # AND includes the first line of the .header from EACH subdir
+* .readme - only the one local is checked, added below index listing
+* .footer - only the one in the root is checked, added last
 
-Note that the header and footer check at the top level of the URL path,
-whilst the header (again) and index are checked at the requested path
-location. Thus you can have a site-specific header and footer, and a 
-page-specific header and index. 
-
-
+All these are included without further processing (yikes!) and assumed to be written in html
+  * global header and footer intended to be one-liners
+  * local header could go either way, but first line expected useful alone
+  * index and readme intended to be multiline content
