@@ -524,6 +524,9 @@ if(file_exists("$dir/.index")) {
 					$y[98] .= " ".shell_exec("head -1 ".escapeshellarg($dir."/".$f."/.header"));
 				}
 			    }
+                            if (is_link("$dir/$f")) {
+                                $y[99] .= " <i>[symlink]</i>";
+                            }
 			    array_push ($x, array ($f, $y));
 		    }
 	    }
