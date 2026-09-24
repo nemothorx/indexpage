@@ -42,11 +42,11 @@ Place i.php at the path of the URL root, possibly with a suitably hidden name (f
 
 
 ### Apache2
-Originally written with apache/php in mind, current code does not work in apache properly. Older revisions do (or did), and used a .htaccess rule:
+Originally written with apache/php in mind
 
 ```
 RewriteCond %{REQUEST_FILENAME}/ -d
-RewriteRule (.*) /.i.php?path=$1 [NC]
+RewriteRule (.*) /.i.php?path=/$1 [NC]
 ```
 
 ### nginx
