@@ -34,7 +34,7 @@ $docroot = $_SERVER['DOCUMENT_ROOT'];
 if (isset($_GET['path']) ) { $reqdir = $_GET['path']; }
 # $dir = $scriptdir.$reqdir;
 $dir = $docroot.$reqdir;
-#echo "dir: $dir<br>";
+# echo "dir: $dir = $docroot + $reqdir<br>";
 
 #name(script_filename)),realpath($_REQUEST['path']))!==0) {
 #                      die ("FUCK YOU! KEEP OUTTA MY FILEZ!"); }

@@ -54,7 +54,7 @@ The current revision is known to work with nginx and php8.2-fpm. It uses the fol
 
 ```
     if ( -d $request_filename ) {
-        rewrite ^(.*)$ /.i.php?path=$1;
+        rewrite ^(.*)$ /.i.php?path=/$1;
     }
 ```
 
