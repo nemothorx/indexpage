@@ -469,7 +469,7 @@ echo "	<h1>\n";
                 // TODO: replace with substr(x ,-1), PHP_EOL; // to get last chatracter
                 // better todo: I dont think this whole method is sane/works anyway. maybe?
 #		$reverse=strrev($requesturi);
-#		if ($reverse{0} == "/") { echo "/\n";}
+#		if ($reverse[0] == "/") { echo "/\n";}
 echo "	</h1>\n";
 
                 $cnt=strlen($reqdir);
@@ -497,6 +497,7 @@ if(file_exists("$dir/.index")) {
 #			    $fileinfo = shell_exec("file -b -z ".escapeshellarg($dir."/".$f));
                             # TODO post 1.9: if there is a youtube-dl .description version of a file, get it's first line for fileinfo 
 			    $y[99] = $fileinfo;
+			    $y[98] = "";    # later contains .header if it exists
 			    # special extra magic for directories:
 			    if (is_dir("$dir/$f")) {
 				# force directory sizes to be zero
